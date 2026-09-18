@@ -41,7 +41,7 @@ Two halves, deliberately:
 | A2 | Mod packaging | Pinned build script, patches dir, tests run, zip artifact | done (builds + 26 tests pass here) |
 | A3 | MCP server | Typed tools for all RPCs, meta tools (wait, events, screenshot), prompt + resources, tests against a mock bridge | done: 96 catalog tools + 5 meta, 18 tests incl. stdio e2e |
 | A4 | Docs | SETUP, PLAYBOOK, TOOLS reference, ARCHITECTURE, TROUBLESHOOTING, client config examples | done (TOOLS.md generated) |
-| A5 | CI + PR | Workflow builds mod + MCP, runs both test suites, uploads mod zip | workflow written; waiting for the first run |
+| A5 | CI + PR | Workflow builds mod + MCP, runs both test suites, uploads mod zip | done, green |
 | A6 | Live validation | Real game: launch, connect Claude, run the first-day checklist | needs a machine with RimWorld |
 | B | Multiplayer | See `../rimworld-multiplayer/PLAN.md` | parked until A is validated |
 

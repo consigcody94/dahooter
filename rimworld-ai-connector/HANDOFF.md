@@ -22,7 +22,9 @@ Living handoff for the "AI plays RimWorld" connector. The multiplayer effort has
 - Docs: SETUP, PLAYBOOK (served to the model), TOOLS (generated), ARCHITECTURE,
   TROUBLESHOOTING; Claude Desktop and Claude Code config examples.
 - CI: `.github/workflows/rimworld-ai-connector.yml` (mod build + upstream tests + artifact,
-  MCP build + tests + tool-doc drift check).
+  MCP build + tests + tool-doc drift check). Green on the first run (2026-09-18 23:07 UTC):
+  https://github.com/consigcody94/dahooter/actions/runs/35404371548. The installable mod
+  is the `RimBridge-mod` artifact of that run (and of every later run on the branch).
 
 **Not verified here**
 
@@ -64,7 +66,7 @@ Then follow `docs/SETUP.md` on the machine that runs RimWorld.
 
 ## Next steps
 
-1. Finish A3/A4/A5 (see PLAN.md), push, CI green.
+1. (Done) A3/A4/A5: pushed, CI green.
 2. On a machine with RimWorld 1.6: install Harmony + the built RimBridge, launch the game,
    point Claude Desktop or Claude Code at `mcp/dist/index.js`, run the `rimworld_play`
    prompt, do a first day. Record what worked and what did not here.
@@ -77,4 +79,4 @@ Then follow `docs/SETUP.md` on the machine that runs RimWorld.
 - **2026-09-18, session 1.** Pivot from multiplayer to the AI connector at the user's
   request. Researched prior art, cloned and built RimBridge, decided on RimBridge + our MCP
   server, wrote the build script, the MCP server with tests, docs, CI, and this handoff.
-  Pushed to PR #1 alongside the multiplayer kit.
+  Pushed to PR #1 alongside the multiplayer kit; connector CI green on both jobs.
