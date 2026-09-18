@@ -1,0 +1,46 @@
+# settings.toml for the RimWorld Multiplayer standalone server.
+#
+# Normally you do not write this file: the first player to connect ("the configurator") fills
+# these values in from inside the game and the server writes the file itself. Copy this file
+# to settings.toml next to Server.dll only if you want to pre-seed the configuration (then the
+# configurator only has to create and upload the world).
+#
+# Values below are the server defaults as of rwmt/Multiplayer dev e760d30 (mod 0.11.5).
+# Enum values are case-sensitive strings.
+
+gameName = "Multiplayer Server"
+
+# Direct connect listener. "ip:port"; several endpoints can be joined with "&".
+# Use 0.0.0.0 to listen on every IPv4 address. Clients connect to <public ip>:<port> over UDP.
+directAddress = "0.0.0.0:30502"
+direct = true
+
+# LAN discovery and Steam relay are NOT supported by the standalone server; keep both false.
+lan = false
+lanAddress = "127.0.0.1"
+steam = false
+
+maxPlayers = 8
+
+# Autosave cadence; unit is "Days" (in-game) or "Minutes" (real time).
+autosaveInterval = 1.0
+autosaveUnit = "Days"
+
+# Gameplay
+asyncTime = false            # each map runs its own clock
+multifaction = false         # players get their own factions instead of sharing one
+timeControl = "EveryoneControls"   # EveryoneControls | LowestWins | HostOnly
+pauseOnLetter = "AnyThreat"        # Never | MajorThreat | AnyThreat | AnyLetter
+pauseOnJoin = true
+pauseOnDesync = true
+
+# Sync / debugging
+syncConfigs = true           # send the host's mod configs to joiners so everyone matches
+desyncTraces = true          # keep stack traces for desync reports (costs a little CPU)
+autoJoinPoint = "Join, Desync"     # flags: Join, Desync, Autosave
+devModeScope = "HostOnly"          # HostOnly | Everyone
+debugMode = false
+
+# Password
+hasPassword = false
+password = ""
