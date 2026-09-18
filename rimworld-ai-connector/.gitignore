@@ -1,0 +1,7 @@
+mod/.work/
+mod/dist/
+mod/*.zip
+mcp/node_modules/
+mcp/dist/
+mcp/dist-test/
+*.log

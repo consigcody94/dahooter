@@ -25,10 +25,10 @@ repo is touched.
 |---|-------|-------------|--------|
 | 1 | Research | Versions, server capability, docs, IDs recorded in HANDOFF.md | done |
 | 2 | Server build | Standalone server built from upstream `dev`, headless crash fixed | done |
-| 3 | Packaging | Dockerfile, compose file, systemd unit, run scripts, Windows script | written; image build verified by CI (no Docker daemon in the build sandbox) |
+| 3 | Packaging | Dockerfile, compose file, systemd unit, run scripts, Windows script | done; image build + headless container run verified in CI |
 | 4 | Client kit | Mod list, load order, `ModsConfig.xml` template, connect steps | done |
 | 5 | Verification | Server runs headless, protocol smoke test passes | done in sandbox; bootstrap + join with real game clients still to run |
-| 6 | Handoff | HANDOFF.md kept current, PR opened | ongoing |
+| 6 | Handoff | HANDOFF.md kept current, PR opened | PR #1 open, CI green; parked behind the AI connector |
 
 ## Decisions
 

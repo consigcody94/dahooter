@@ -49,8 +49,9 @@ above it always describe the current state. Update it whenever something changes
 
 **Not verified here (needs things the sandbox does not have)**
 
-- The Docker image build and container run: no Docker daemon in the sandbox. The CI
-  `docker` job covers exactly this; check its result on the PR.
+- (Resolved) The Docker image build and container run could not run in the sandbox; the
+  CI `docker` job built the image, ran the container without a TTY, passed the smoke
+  test and the health check, and stopped it with SIGTERM. Green on the first run.
 - A real bootstrap and a second-player join with actual RimWorld clients. The smoke
   test stops where the server asks for the mod list, which only the game can answer.
 - `scripts/install-linux.sh` on a real systemd host (no systemd in the sandbox). The
@@ -115,7 +116,7 @@ re-fetches the pinned commit into `.work/` (git-ignored).
 
 ## Next steps
 
-1. Watch the CI run on the PR; fix anything the `docker` job reports.
+1. (Done) CI green on PR #1: build-and-smoke and docker jobs.
 2. Deploy: pick Docker (section A) or bare metal (section B) in
    `docs/SERVER-SETUP.md`, open UDP 30502, start it.
 3. One player installs the `continuous` client + Prepatcher + Harmony + MP
@@ -133,7 +134,10 @@ re-fetches the pinned commit into `.work/` (git-ignored).
 - **2026-09-18, session 1 (this session).** Researched upstream, cloned and built the
   server, found the no-TTY crash, wrote and verified the patch, wrote the smoke client
   and confirmed the handshake, wrote Docker/systemd/script packaging, client kit,
-  docs, CI workflow, plan and this handoff. Opened the draft PR.
+  docs, CI workflow, plan and this handoff. Opened the draft PR #1
+  (https://github.com/consigcody94/dahooter/pull/1); CI passed on both jobs at 22:45 UTC.
+  Later the same session the owner re-prioritised: AI connector first (see
+  `../rimworld-ai-connector/`), multiplayer parked until that is validated.
   Evidence kept in this file: smoke test output below.
 
 ```

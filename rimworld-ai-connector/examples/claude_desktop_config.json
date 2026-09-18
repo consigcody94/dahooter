@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "rimworld": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/rimworld-ai-connector/mcp/dist/index.js"],
+      "env": {
+        "RIMBRIDGE_URL": "http://127.0.0.1:8765",
+        "RIMWORLD_MCP_MAX_CHARS": "12000"
+      }
+    }
+  }
+}
