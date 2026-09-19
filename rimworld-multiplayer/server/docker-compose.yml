@@ -1,0 +1,29 @@
+# RimWorld Multiplayer standalone server.
+#   cd rimworld-multiplayer/server
+#   docker compose up -d --build
+#   docker compose logs -f
+#   docker attach --sig-proxy=false rimworld-mp     # type console commands; Ctrl+C leaves
+services:
+  rimworld-mp:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+      args:
+        # rwmt/Multiplayer `dev` branch, 2026-08-04, mod 0.11.5 / protocol 56.
+        # Must match the client build the players use (see docs/UPDATING.md).
+        MP_REF: e760d3018495589ded3ecb21901705c47deb4a2c
+    image: rimworld-multiplayer-server:dev-e760d30
+    container_name: rimworld-mp
+    # Required: the server stops itself on purpose once the first player uploads the world.
+    restart: unless-stopped
+    # stdin stays open so `docker attach` can send console commands (status, players, kick, ...).
+    stdin_open: true
+    tty: false
+    ports:
+      - "30502:30502/udp"   # Direct-connect port; must match directAddress in ./data/settings.toml
+    volumes:
+      - ./data:/data        # settings.toml, save.zip and Saved/ (the live world) live here
+    environment:
+      PUID: "1000"          # owner of ./data on the host (id -u)
+      PGID: "1000"          # (id -g)
+      MP_PORT: "30502"      # only used by the container health check

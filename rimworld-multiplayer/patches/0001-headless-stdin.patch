@@ -1,0 +1,98 @@
+diff --git a/Source/Server/Server.cs b/Source/Server/Server.cs
+index 30890e7..2567589 100644
+--- a/Source/Server/Server.cs
++++ b/Source/Server/Server.cs
+@@ -1,4 +1,5 @@
+-﻿using System.Net;
++using System.Net;
++using System.Runtime.InteropServices;
+ using System.Threading;
+ using Multiplayer.Common;
+ using Multiplayer.Common.Util;
+@@ -115,25 +116,74 @@ if (settings.lan)
+     server.netManagers.Add(lan);
+ }
+ 
+-new Thread(server.Run) { Name = "Server thread" }.Start();
++var serverThread = new Thread(server.Run) { Name = "Server thread" };
++serverThread.Start();
+ 
+-while (server.running)
+-{
+-    if (Console.KeyAvailable)
+-    {
+-        var cmd = Console.ReadLine();
+-        if (cmd != null)
+-            server.Enqueue(() => server.HandleChatCommand(consoleSource, cmd));
++// Stop cleanly on SIGTERM/SIGINT (docker stop, systemctl stop, Ctrl+C) so peers get a ServerClosed goodbye.
++using var sigTerm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, ctx => { ctx.Cancel = true; RequestStop("SIGTERM"); });
++using var sigInt = PosixSignalRegistration.Create(PosixSignal.SIGINT, ctx => { ctx.Cancel = true; RequestStop("SIGINT"); });
+ 
+-        if (cmd == stopCmd)
+-            break;
+-    }
+-    else
++if (Console.IsInputRedirected)
++{
++    // Headless mode: stdin is a pipe, a file, or closed (docker without -t, systemd, nohup, CI).
++    // Console.KeyAvailable throws InvalidOperationException in that case, so read whole lines on a
++    // background thread instead and let the main thread just wait for the server to stop.
++    ServerLog.Log("Console input is redirected; running headless. Send commands on stdin or use SIGTERM to stop.");
++    var inputThread = new Thread(() =>
+     {
++        try
++        {
++            string? line;
++            while (server.running && (line = Console.In.ReadLine()) != null)
++            {
++                var cmd = line.Trim();
++                if (cmd.Length == 0) continue;
++                server.Enqueue(() => server.HandleChatCommand(consoleSource, cmd));
++                if (cmd == stopCmd) RequestStop("stdin");
++            }
++        }
++        catch (Exception e)
++        {
++            ServerLog.Error($"Console input thread ended: {e.Message}");
++        }
++        // EOF on stdin is normal when nothing is attached; the server keeps running until stopped.
++    }) { Name = "Console input", IsBackground = true };
++    inputThread.Start();
++
++    while (server.running)
+         Thread.Sleep(50);
++}
++else
++{
++    while (server.running)
++    {
++        if (Console.KeyAvailable)
++        {
++            var cmd = Console.ReadLine();
++            if (cmd != null)
++                server.Enqueue(() => server.HandleChatCommand(consoleSource, cmd));
++
++            if (cmd == stopCmd)
++                break;
++        }
++        else
++        {
++            Thread.Sleep(50);
++        }
+     }
+ }
+ 
++// Give the server thread a moment to run TryStop() and close peer connections.
++server.running = false;
++serverThread.Join(TimeSpan.FromSeconds(10));
++
++void RequestStop(string source)
++{
++    if (!server.running) return;
++    ServerLog.Log($"Stop requested ({source}).");
++    server.running = false;
++}
++
+ class ConsoleSource : IChatSource
+ {
+     public void SendMsg(string msg)

@@ -1,0 +1,10 @@
+# build and runtime outputs (regenerate with scripts/build-server.sh)
+.work/
+server/dist/
+server/Server-headless.zip
+server/data/
+downloads/
+client/dist/
+tools/**/bin/
+tools/**/obj/
+*.log

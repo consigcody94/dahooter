@@ -1,0 +1,36 @@
+diff --git a/Source/Game/GameControl.cs b/Source/Game/GameControl.cs
+index 406f3ca..77cc414 100644
+--- a/Source/Game/GameControl.cs
++++ b/Source/Game/GameControl.cs
+@@ -153,8 +153,7 @@ namespace RimBridge.GameCtl
+         {
+             int n = P.Int(p, "lines", 100);
+             string? filter = P.OptStr(p, "filter");
+-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Library/Logs/Ludeon Studios/RimWorld by Ludeon Studios/Player.log");
+-            if (!File.Exists(path)) throw new RpcError("Player.log not found at " + path);
++            string path = FindPlayerLog() ?? throw new RpcError("Player.log not found (looked at Unity's consoleLogPath and the usual Windows/macOS/Linux locations)");
+             string[] lines;
+             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+             using (var sr = new StreamReader(fs)) lines = sr.ReadToEnd().Split('\n');
+@@ -167,6 +166,21 @@ namespace RimBridge.GameCtl
+         [Rpc("bridge.methods", "list all rpc methods with docs", MainThread = false)]
+         public static JToken Methods(JObject p) => Rpc.Describe();
+ 
++        /// <summary>Unity tells us where the log is; fall back to the usual per-platform locations.</summary>
++        static string? FindPlayerLog()
++        {
++            var candidates = new System.Collections.Generic.List<string>();
++            try { var p = UnityEngine.Application.consoleLogPath; if (!string.IsNullOrEmpty(p)) candidates.Add(p); } catch { }
++            string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
++            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
++            candidates.Add(Path.Combine(home, "AppData", "LocalLow", "Ludeon Studios", "RimWorld by Ludeon Studios", "Player.log"));
++            candidates.Add(Path.Combine(home, "Library", "Logs", "Ludeon Studios", "RimWorld by Ludeon Studios", "Player.log"));
++            candidates.Add(Path.Combine(home, ".config", "unity3d", "Ludeon Studios", "RimWorld by Ludeon Studios", "Player.log"));
++            if (!string.IsNullOrEmpty(local)) candidates.Add(Path.Combine(local, "..", "LocalLow", "Ludeon Studios", "RimWorld by Ludeon Studios", "Player.log"));
++            foreach (var c in candidates) if (File.Exists(c)) return c;
++            return null;
++        }
++
+         public static void RequirePlaying()
+         {
+             if (Current.ProgramState != ProgramState.Playing || Find.CurrentMap == null)

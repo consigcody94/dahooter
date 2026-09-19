@@ -1,0 +1,91 @@
+name: RimWorld MP server
+
+# Builds the headless-patched standalone server from the pinned upstream commit, runs the
+# protocol smoke test against it, and builds + smoke-tests the Docker image. Artifacts:
+# Server-headless (Linux + Windows) so nobody needs a local .NET 10 SDK.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'rimworld-multiplayer/**'
+      - '.github/workflows/rimworld-mp-server.yml'
+  pull_request:
+    paths:
+      - 'rimworld-multiplayer/**'
+      - '.github/workflows/rimworld-mp-server.yml'
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+
+jobs:
+  build-and-smoke:
+    name: Build from source + smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Build server (Linux + Windows)
+        run: rimworld-multiplayer/scripts/build-server.sh
+
+      - name: Smoke test (headless server + scripted client)
+        run: rimworld-multiplayer/scripts/smoke-test.sh
+
+      - name: Upload server build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Server-headless
+          path: rimworld-multiplayer/server/dist/
+          if-no-files-found: error
+
+  docker:
+    name: Docker image build + smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Build image
+        run: docker build -f rimworld-multiplayer/server/Dockerfile -t rimworld-multiplayer-server:ci rimworld-multiplayer
+
+      - name: Run container headless (no TTY) with a bind-mounted data dir
+        run: |
+          mkdir -p "$RUNNER_TEMP/mpdata"
+          docker run -d --name mp -p 30502:30502/udp \
+            -e PUID="$(id -u)" -e PGID="$(id -g)" \
+            -v "$RUNNER_TEMP/mpdata:/data" rimworld-multiplayer-server:ci
+          sleep 5
+          docker logs mp
+          docker inspect -f '{{.State.Status}}' mp | grep -q running
+
+      - name: Extract server DLLs from the image for the smoke client
+        run: |
+          mkdir -p "$RUNNER_TEMP/srv"
+          docker cp mp:/opt/rimworld-mp/. "$RUNNER_TEMP/srv/"
+          dotnet build rimworld-multiplayer/tools/smoke-client -c Release -p:ServerDir="$RUNNER_TEMP/srv" -o "$RUNNER_TEMP/smoke" -nologo -v q
+
+      - name: Smoke test against the container
+        run: dotnet "$RUNNER_TEMP/smoke/SmokeClient.dll" 127.0.0.1 30502 15
+
+      - name: Health check + graceful stop
+        run: |
+          for i in 1 2 3 4 5 6; do
+            s=$(docker inspect -f '{{.State.Health.Status}}' mp); echo "health=$s"
+            [ "$s" = healthy ] && break; sleep 5
+          done
+          [ "$s" = healthy ]
+          docker stop -t 15 mp
+          docker logs mp | grep -q "Stop requested (SIGTERM)"
+          ls -la "$RUNNER_TEMP/mpdata"

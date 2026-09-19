@@ -1,0 +1,32 @@
+# systemd unit for the RimWorld Multiplayer standalone server (bare-metal Linux).
+# Installed by scripts/install-linux.sh to /etc/systemd/system/rimworld-mp.service.
+# Requires the headless-patched build (server/dist/Linux); the upstream Server-beta.zip
+# crashes under systemd because stdin is not a terminal.
+[Unit]
+Description=RimWorld Multiplayer standalone server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rimworld
+Group=rimworld
+WorkingDirectory=/opt/rimworld-mp
+ExecStart=/usr/bin/dotnet /opt/rimworld-mp/Server.dll
+# The server exits on purpose after the bootstrap upload; always come back with the new world.
+Restart=always
+RestartSec=3
+StandardInput=null
+StandardOutput=journal
+StandardError=journal
+KillSignal=SIGTERM
+TimeoutStopSec=20
+Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/rimworld-mp
+
+[Install]
+WantedBy=multi-user.target

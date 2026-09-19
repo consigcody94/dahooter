@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Reference mod list / load order for RimWorld Multiplayer (RimWorld 1.6).
+
+  Every player must run exactly this list, in this order, with identical mod settings.
+  Where RimWorld keeps the real file:
+    Windows: %USERPROFILE%\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\Config\ModsConfig.xml
+    macOS:   ~/Library/Application Support/RimWorld/Config/ModsConfig.xml
+    Linux:   ~/.config/unity3d/Ludeon Studios/RimWorld by Ludeon Studios/Config/ModsConfig.xml
+  Keep the <version> line RimWorld wrote in your own file. Remove DLC lines you do not own;
+  everyone must own and enable the same DLC.
+-->
+<ModsConfigData>
+  <version>1.6</version>
+  <activeMods>
+    <li>zetrith.prepatcher</li>
+    <li>brrainz.harmony</li>
+    <li>ludeon.rimworld</li>
+    <li>ludeon.rimworld.royalty</li>
+    <li>ludeon.rimworld.ideology</li>
+    <li>ludeon.rimworld.biotech</li>
+    <li>ludeon.rimworld.anomaly</li>
+    <li>ludeon.rimworld.odyssey</li>
+    <li>rwmt.multiplayer</li>
+    <li>rwmt.multiplayercompatibility</li>
+    <!-- other mods go below this line, same order for everyone -->
+  </activeMods>
+  <knownExpansions>
+    <li>ludeon.rimworld.royalty</li>
+    <li>ludeon.rimworld.ideology</li>
+    <li>ludeon.rimworld.biotech</li>
+    <li>ludeon.rimworld.anomaly</li>
+    <li>ludeon.rimworld.odyssey</li>
+  </knownExpansions>
+</ModsConfigData>

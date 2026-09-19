@@ -1,0 +1,38 @@
+{
+  "name": "rimworld-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server that lets Claude (or any MCP client) observe and play RimWorld through the RimBridge mod",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "rimworld-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "tsx --test test/*.test.ts",
+    "tools-doc": "tsx scripts/gen-tools-doc.ts",
+    "clean": "rm -rf dist",
+    "pretest": "npm run build",
+    "preflight": "tsx scripts/preflight.ts",
+    "audit": "tsx scripts/audit-catalog.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

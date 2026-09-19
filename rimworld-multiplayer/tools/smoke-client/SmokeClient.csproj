@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Protocol smoke test for the RimWorld Multiplayer standalone server.
+    Links against MultiplayerCommon.dll + LiteNetLib.dll from a server publish directory,
+    so it always speaks exactly the protocol version of the server it was built next to.
+    Build: dotnet build tools/smoke-client -p:ServerDir=/path/to/Server/Linux
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ServerDir Condition="'$(ServerDir)' == ''">$(MSBuildThisFileDirectory)../../server/dist/Linux</ServerDir>
+    <NoWarn>$(NoWarn);NU1701;NU1702</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MultiplayerCommon"><HintPath>$(ServerDir)/MultiplayerCommon.dll</HintPath></Reference>
+    <Reference Include="LiteNetLib"><HintPath>$(ServerDir)/LiteNetLib.dll</HintPath></Reference>
+    <None Include="$(ServerDir)/*.dll" Exclude="$(ServerDir)/Server.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
