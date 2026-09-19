@@ -29,7 +29,7 @@ export interface RimworldServer {
   server: McpServer;
   session: SessionState;
   /** Ask the running bridge for its method list and register tools for methods we do not know. */
-  refreshDynamicTools(): Promise<{ added: string[]; total: number }>;
+  refreshDynamicTools(): Promise<{ added: string[]; total: number; missing: string[] }>;
   registeredTools(): string[];
 }
 
@@ -99,6 +99,7 @@ export function createServer(opts: ServerOptions): RimworldServer {
           methods: dyn.total,
           tools_registered: registered.size,
           dynamic_tools_added: dyn.added,
+          catalog_methods_missing_on_bridge: dyn.missing,
           groups: { dev: opts.enableDev === true, engine: opts.enableEngine === true },
           hint: opts.enableDev ? undefined : "dev cheats hidden (RIMWORLD_MCP_ENABLE_DEV=1 to enable); engine reflection hidden (RIMWORLD_MCP_ENABLE_ENGINE=1)",
         };
@@ -230,9 +231,11 @@ export function createServer(opts: ServerOptions): RimworldServer {
 
   // ---- dynamic tools ------------------------------------------------------------------------
   const dynamicSchema = z.looseObject({});
-  async function refreshDynamicTools(): Promise<{ added: string[]; total: number }> {
+  async function refreshDynamicTools(): Promise<{ added: string[]; total: number; missing: string[] }> {
     const methods = await bridge.methods();
     const added: string[] = [];
+    const live = new Set(methods.map((m) => m.method));
+    const missing = CATALOG.filter((s) => groupEnabled(s.group) && !live.has(s.method)).map((s) => s.method);
     for (const m of methods) {
       if (METHODS_WITHOUT_TOOLS.has(m.method)) continue;
       const name = toolName(m.method);
@@ -258,7 +261,7 @@ export function createServer(opts: ServerOptions): RimworldServer {
         }
       );
     }
-    return { added, total: methods.length };
+    return { added, total: methods.length, missing };
   }
 
   // ---- prompt + resources -------------------------------------------------------------------
@@ -334,6 +337,8 @@ export async function tryDiscover(rw: RimworldServer, log: (msg: string) => void
   try {
     const r = await rw.refreshDynamicTools();
     log(`bridge reachable: ${r.total} methods, ${r.added.length} dynamic tools added`);
+    if (r.missing.length > 0)
+      log(`WARNING: the running RimBridge lacks ${r.missing.length} method(s) this server has tools for (different mod version?): ${r.missing.join(", ")}`);
   } catch (e) {
     if (e instanceof BridgeUnreachable) log("bridge not reachable yet (start RimWorld with RimBridge); catalog tools registered anyway");
     else log(`discovery failed: ${(e as Error).message}`);

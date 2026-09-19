@@ -138,7 +138,7 @@ No parameters.
 
 Letters waiting on screen, with id and choices where applicable. Answer with rimworld_ui_letter.
 
-Parameters (* = required): `include_archived` (boolean)
+No parameters.
 
 ### `rimworld_state_pawn` (`state.pawn`) [read-only]
 
@@ -218,7 +218,7 @@ Parameters (* = required): `cell`* (array): [x, z] cell; x grows right, z grows 
 
 Zoomed ASCII view where every column is numbered and each building type gets its own letter (UPPER = built, lower = blueprint/frame); '*' interaction spots that must stay clear, '+' doors, '_' stockpile, ',' growing zone, 'i' items, '@' colonists, '!' hostiles, '^' rock, '~' water, '.' open ground. Returns legend + things in view with id/rot/size. Use before and after placing anything.
 
-Parameters (* = required): `x` (integer); `z` (integer); `around` (array or string): centre on a thing id, pawn, anchor or Room:N; `w` (integer): default 24; `h` (integer): default 24; `roof` (boolean)
+Parameters (* = required): `x` (integer); `z` (integer); `around` (array or string): centre on a thing id, pawn, anchor or Room:N; `w` (integer): default 24; `h` (integer): default 24; `roof` (boolean); `mark` (array): cells to highlight with X in the view
 
 ### `rimworld_map_find` (`map.find`) [read-only]
 
@@ -264,9 +264,9 @@ Parameters (* = required): `rect` (array or string): [minX,minZ,w,h] or an ancho
 
 ### `rimworld_map_terrain_stats` (`map.terrain_stats`) [read-only]
 
-Counts of fertile soil, water, rock, ore (by type) etc. within radius of home.
+Counts of fertile soil, water, rock, ore (by type), trees, geysers etc. within a radius of a point (default: home, radius 50).
 
-No parameters.
+Parameters (* = required): `near` (array or string): [x,z], a thing id, a pawn name, or an anchor name like 'bedroom2' / 'bedroom2:NW' / 'Campfire39256 +E2'; `radius` (integer): default 50
 
 ### `rimworld_map_view` (`map.view`) [read-only]
 
@@ -292,7 +292,7 @@ Parameters (* = required): `pawn`* (string): pawn name or id, e.g. 'Sparky' or '
 
 Edit the home area or allowed areas.
 
-Parameters (* = required): `action`* (home_add\|home_remove\|create\|delete\|add\|remove); `label` (string); `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name
+Parameters (* = required): `action`* (home_add\|home_remove\|create\|delete\|add\|remove); `label` (string); `cell` (array): [x, z] cell; x grows right, z grows up; `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name
 
 ### `rimworld_ui_attack` (`ui.attack`)
 
@@ -328,7 +328,7 @@ Parameters (* = required): `pawn`* (string): pawn name or id, e.g. 'Sparky' or '
 
 Apply an orders/architect designator to cells, a rect, or things: mine, cut, harvest, harvestwood, hunt, haul, deconstruct, cancel, uninstall, tame, slaughter, strip, open, smooth, removefloor, claim, forbid, unforbid, plan, unplan (or any Designator_ClassName). This queues work for the whole colony.
 
-Parameters (* = required): `designator`* (string); `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name; `things` (array): thing ids like 'Steel2851' or 'Human102'
+Parameters (* = required): `designator`* (string); `cell` (array): [x, z] cell; x grows right, z grows up; `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name; `things` (array): thing ids like 'Steel2851' or 'Human102'
 
 ### `rimworld_ui_dialog` (`ui.dialog`)
 
@@ -388,7 +388,7 @@ Parameters (* = required): `thing`* (string): thing id, e.g. 'Campfire2977'; `la
 
 Set prisoner interaction mode and medical care.
 
-Parameters (* = required): `pawn`* (string): pawn name or id, e.g. 'Sparky' or 'Human102'; `mode` (string): NoInteraction|MaintainOnly|ReduceResistance|AttemptRecruit|Release|Execution|Enslave|Convert|...; `medical` (string)
+Parameters (* = required): `pawn`* (string): pawn name or id, e.g. 'Sparky' or 'Human102'; `mode` (string): NoInteraction|MaintainOnly|ReduceResistance|AttemptRecruit|Release|Execution|Enslave|Convert|...
 
 ### `rimworld_ui_select` (`ui.select`)
 
@@ -442,7 +442,7 @@ Parameters (* = required): `from`* (array or string): [x,z], a thing id, a pawn 
 
 Create or edit stockpile and growing zones.
 
-Parameters (* = required): `action`* (create_stockpile\|create_growing\|delete\|add_cells\|remove_cells\|set_plant\|rename\|set_priority); `label` (string); `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name; `plant` (string): ThingDef, e.g. Plant_Rice; `priority` (Low\|Normal\|Preferred\|Important\|Critical); `preset` (DefaultStockpile\|DumpingStockpile)
+Parameters (* = required): `action`* (create_stockpile\|create_growing\|delete\|add_cells\|remove_cells\|set_plant\|rename\|set_priority); `label` (string): zone to act on (existing zones) or the name for a new zone; `new_label` (string): for action=rename; `cell` (array): [x, z] cell; x grows right, z grows up; `cells` (array): list of [x,z] cells; `rect` (array or string): [minX,minZ,w,h] or an anchor/room name; `plant` (string): ThingDef, e.g. Plant_Rice; `priority` (Low\|Normal\|Preferred\|Important\|Critical); `preset` (DefaultStockpile\|DumpingStockpile)
 
 ## defs
 

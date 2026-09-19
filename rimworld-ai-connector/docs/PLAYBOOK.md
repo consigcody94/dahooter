@@ -102,6 +102,34 @@ Thing ids look like `Steel2851`, `Human102`; pawns are accepted by name or id.
 9. Equip the starting weapons; decide who fights and where the one doorway is.
 10. Then `rimworld_wait(hours=6)`.
 
+## Lessons from real colonies (rimagent's journal, RimWorld 1.6.4871)
+
+- **"placed" is not "built".** A build result with no `failed` entries only means blueprints
+  exist. Nobody may be building them. Confirm from state: `rimworld_state_summary` shows
+  `blueprints`/`frames` counts and a `room_digest`; an enclosed, roofed room shows up there
+  with an indoor temperature. One unbuilt door frame keeps a whole room "outdoors" (beds
+  count as outside, colonists get the "slept outside" mood hit).
+- **Bills do not de-duplicate.** `rimworld_ui_add_bill` twice gives two identical bills.
+  Read `rimworld_state_bills(thing=...)` before adding. Verified 1.6 recipe defNames:
+  Campfire / FueledStove / ElectricStove use `CookMealSimple` (TargetCount); ButcherSpot /
+  TableButcher use `ButcherCorpseFlesh` (Forever); TableStonecutter uses
+  `Make_StoneBlocksAny` (Forever); TableSculpting uses `Make_SculptureSmall` /
+  `Make_SculptureLarge`. Fine and lavish meals and pemmican are locked until researched.
+- **A new work table does nothing until it has a bill.** An idle cook with a full stockpile
+  and no meals usually means the stove has no bill, not a priority problem.
+- **Spike traps cannot be adjacent to another trap.** A trap blueprint next to a built trap
+  never completes and never errors; it just sits in the blueprint count forever. Cancel it.
+- **Meals and meat rot fast in warm weather.** Keep cooked-meal bill targets modest (about
+  20 to 25 for three colonists in summer), butcher and cook promptly, and research
+  pemmican or build a cooler early.
+- **Wood and steel left outdoors deteriorate.** Finish the roof over the stockpile; watch a
+  resource count fall between turns as the sign.
+- **Hunting and hauling starve the other jobs.** One hunter chasing a big target across
+  the map, or everyone on Hauling 1 after a landing, leaves cooking, building and research
+  idle. Check `rimworld_state_work_matrix` when nothing progresses.
+- **Guessing a defName wastes a call.** `rimworld_defs_search(query=...)` first, then act.
+- **Wooden walls next to a campfire burn.** Put the campfire outside or use stone.
+
 ## Pitfalls
 
 - Crash-landed items start forbidden. Nobody hauls forbidden things.

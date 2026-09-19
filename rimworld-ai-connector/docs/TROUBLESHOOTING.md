@@ -1,5 +1,7 @@
 # Troubleshooting
 
+**Start here:** `npm run preflight` in `mcp/` with the game running. It names the failing piece.
+
 **Tools return "RimBridge unreachable at http://127.0.0.1:8765"**
 RimWorld is not running, the mod is disabled, the port was changed in mod settings, or the
 MCP server runs on another machine. Check http://127.0.0.1:8765/health in a browser on the
@@ -34,6 +36,11 @@ copes with big tool results.
 **`rimworld_ui_build` fails with "stuff required"**
 Walls, doors, beds and most furniture need a material. Call once without `stuff` to get the
 options with on-map quantities, then pass `stuff="WoodLog"` (or BlocksGranite, Steel...).
+
+**A build "succeeded" but the room never appears / beds are "outside"**
+`placed` only means blueprints exist. Check `blueprints` and `frames` in
+`rimworld_state_summary`; an enclosed roofed room shows in `room_digest` with a temperature.
+One unbuilt door frame keeps the room outdoors. See the playbook's real-colony lessons.
 
 **Blueprints never get built**
 Missing materials (check `failed` reasons and `rimworld_state_stocks`), nobody has

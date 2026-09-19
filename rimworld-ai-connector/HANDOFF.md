@@ -26,6 +26,33 @@ Living handoff for the "AI plays RimWorld" connector. The multiplayer effort has
   https://github.com/consigcody94/dahooter/actions/runs/35404371548. The installable mod
   is the `RimBridge-mod` artifact of that run (and of every later run on the branch).
 
+**Verified against the real game's internals (2026-09-19, "make it almost perfect" pass)**
+
+- Version alignment: the mod is compiled against Krafs.Rimworld.Ref 1.6.4871, which is
+  the public RimWorld build released 2026-07-01. No newer build exists on Ludeon's blog
+  or NuGet.
+- Every string-named Harmony patch target and reflection lookup in the pinned mod source
+  (TimeSlower.ForcedNormalSpeed, WindowStack.WindowsForcePause, Pawn_HealthTracker.MakeDowned,
+  AlertsReadout.AllAlerts, DiaOption.text/Activate) exists in those assemblies; verified by
+  `mod/scripts/check-harmony-targets.sh` (a MetadataLoadContext tool in `mod/tools/harmonycheck`,
+  now a CI step). The compile-checked `typeof`/`nameof` patches are covered by the build itself.
+- Every tool schema was audited against the C# parameter parsing
+  (`mcp/scripts/audit-catalog.ts`, now a CI step). Six gaps fixed: `map.detail` gained
+  `mark`, `map.terrain_stats` gained `near`/`radius`, `ui.area`/`ui.designate`/`ui.zone`
+  gained `cell`, `ui.zone` gained `new_label` (rename), and two parameters the code never
+  reads were removed (`state.letters.include_archived`, `ui.prisoner.medical`).
+- `mod/patches/0001-log-tail-any-platform.patch`: `game.log_tail` used a macOS-only path;
+  it now asks Unity for `Application.consoleLogPath` and falls back to the Windows, macOS
+  and Linux locations. Builds and passes upstream tests with the patch applied.
+- `npm run preflight` (with the game running) checks Node, bridge health, method list vs
+  catalog, game state, a summary read and a screenshot; the server also warns at startup
+  when the running mod lacks methods the catalog expects.
+- rimagent's cross-game journal (lessons learned on 1.6.4871 colonies) folded into the
+  playbook: "placed" is not "built", bills do not de-duplicate, verified recipe defNames,
+  trap adjacency, spoilage, deterioration, hunting/hauling starvation.
+- Upstream: zorrobyte/rimbridge and zorrobyte/rimagent have no reported issues; the pin
+  (3c1e4c7) is still upstream `main`.
+
 **Not verified here**
 
 - Anything that needs the real game: the bridge's own RPC behaviour, the screenshot
@@ -59,7 +86,10 @@ Living handoff for the "AI plays RimWorld" connector. The multiplayer effort has
 ```bash
 cd rimworld-ai-connector
 mod/scripts/build-mod.sh              # mod/dist/RimBridge + zip (needs .NET SDK 10)
+mod/scripts/check-harmony-targets.sh  # patch targets vs the game assemblies
 cd mcp && npm ci && npm run build && npm test
+npm run audit                         # tool schemas vs the mod's parameter parsing
+npm run preflight                     # on the game machine, with RimWorld running
 ```
 
 Then follow `docs/SETUP.md` on the machine that runs RimWorld.
@@ -76,6 +106,11 @@ Then follow `docs/SETUP.md` on the machine that runs RimWorld.
 
 ## Log
 
+- **2026-09-19, session 1 (continued).** "Make it almost perfect before the game" pass:
+  version alignment confirmed (1.6.4871), Harmony targets verified by reflection, all 96
+  tool schemas audited against the code (6 fixes), cross-platform log patch, preflight
+  command, startup drift warning, real-colony lessons in the playbook, Windows setup notes,
+  both checks added to CI. 20 MCP tests pass.
 - **2026-09-18, session 1.** Pivot from multiplayer to the AI connector at the user's
   request. Researched prior art, cloned and built RimBridge, decided on RimBridge + our MCP
   server, wrote the build script, the MCP server with tests, docs, CI, and this handoff.

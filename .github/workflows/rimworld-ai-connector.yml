@@ -30,6 +30,8 @@ jobs:
           dotnet-version: 10.0.x
       - name: Build, test, package
         run: rimworld-ai-connector/mod/scripts/build-mod.sh
+      - name: Harmony targets exist in the game assemblies
+        run: rimworld-ai-connector/mod/scripts/check-harmony-targets.sh
       - name: Upload mod folder
         uses: actions/upload-artifact@v4
         with:
@@ -59,3 +61,11 @@ jobs:
           git diff --exit-code -- ../docs/TOOLS.md || { echo "docs/TOOLS.md is stale: run 'npm run tools-doc' in rimworld-ai-connector/mcp and commit"; exit 1; }
       - name: Server starts and prints help
         run: node dist/index.js --help
+      - name: Tool schemas match the mod's parameter parsing
+        run: |
+          REF=$(grep -oE 'RB_REF:-[0-9a-f]+' ../mod/scripts/build-mod.sh | cut -d- -f2)
+          git init -q ../mod/.work/rimbridge
+          git -C ../mod/.work/rimbridge remote add origin https://github.com/zorrobyte/rimbridge.git
+          git -C ../mod/.work/rimbridge fetch -q --depth 1 origin "$REF"
+          git -C ../mod/.work/rimbridge checkout -q --detach FETCH_HEAD
+          npm run audit -- ../mod/.work/rimbridge/Source

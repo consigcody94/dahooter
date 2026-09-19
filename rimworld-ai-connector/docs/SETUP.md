@@ -39,6 +39,16 @@ npm run build          # -> dist/index.js
 npm test               # optional: runs against a mock bridge, no game needed
 ```
 
+## 3b. Preflight (do this once, with RimWorld running)
+
+```bash
+npm run preflight
+```
+
+It checks Node, the bridge, that the running mod exposes every method this server has a
+tool for, the game state, a summary read and a screenshot, and prints PASS/WARN/FAIL rows
+with what to do. All rows PASS or WARN means the first Claude session will work.
+
 ## 4. Connect Claude
 
 **Claude Desktop** (Settings, Developer, Edit Config), merge `examples/claude_desktop_config.json`:
@@ -74,6 +84,27 @@ Restart the client. You should see tools named `rimworld_*` (about 80 by default
 3. Claude reads `rimworld_game_status`, then `rimworld_state_summary`, and acts. Time only
    advances when Claude calls `rimworld_wait` (or sets a speed itself), so you can watch
    each turn.
+
+## Windows notes
+
+- Steam Mods folder: `C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimBridge`.
+- Node.js: https://nodejs.org (LTS). Run the commands above in PowerShell or Windows
+  Terminal from the `rimworld-ai-connector\mcp` folder.
+- Claude Desktop config file: `%APPDATA%\Claude\claude_desktop_config.json`. Backslashes in
+  JSON must be doubled: `"C:\\Users\\you\\rimworld-ai-connector\\mcp\\dist\\index.js"`, or use
+  forward slashes, which Node accepts on Windows.
+- Claude Code (PowerShell): `claude mcp add rimworld -- node C:/Users/you/rimworld-ai-connector/mcp/dist/index.js`
+- No firewall prompt is expected: the mod listens on loopback only and the MCP server
+  talks over stdio.
+- Game log: `%USERPROFILE%\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios\Player.log`.
+  The `rimworld_game_log_tail` tool finds it on every platform (this repo's patch).
+
+## Version alignment
+
+The mod is compiled against RimWorld 1.6.4871 reference assemblies, the public build since
+July 1, 2026. Every Harmony patch target it uses is verified against those assemblies in CI
+(`mod/scripts/check-harmony-targets.sh`). If Steam updates RimWorld, run the preflight;
+`rimworld_bridge_status` also warns when the running mod lacks methods this server expects.
 
 ## Environment variables
 

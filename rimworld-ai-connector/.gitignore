@@ -5,3 +5,5 @@ mcp/node_modules/
 mcp/dist/
 mcp/dist-test/
 *.log
+mod/tools/**/bin/
+mod/tools/**/obj/
